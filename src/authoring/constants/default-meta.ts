@@ -51,7 +51,7 @@ export const DEFAULT_META = [
   'learningMode',
   'learningObjective',
   'learningTrack',
-  'license',
+  'spaceLicense',
   'locale',
   'mimeType',
   'name',
