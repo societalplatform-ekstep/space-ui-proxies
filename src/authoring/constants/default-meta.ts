@@ -100,4 +100,7 @@ export const DEFAULT_META = [
   'verifiers',
   'visibility',
   'size',
+  'spaceAssetType',
+  'artifactLinkUrl',
+  'artifactUploadUrl',
 ]
