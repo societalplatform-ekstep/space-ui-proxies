@@ -9,8 +9,8 @@ export function processContent(content: IContent): IContent {
     ...content,
     appIcon: processUrl(content.appIcon),
     artifactUrl: processUrl(content.artifactUrl),
+    assetType: content.assetType ? content.assetType : '',
     children: Array.isArray(content.children) ? content.children.map((u) => processContent(u)) : [],
-
     displayContentType: processDisplayContentType(content.contentType, content.resourceType),
     downloadUrl: processDownloadUrl(content.downloadUrl || ''),
     introductoryVideo: processUrl(content.introductoryVideo),

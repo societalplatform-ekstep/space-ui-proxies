@@ -23,6 +23,7 @@ export interface IHistory {
 export interface IContent {
   appIcon: string
   artifactUrl: string
+  assetType: string
   averageRating?: number | string | null
   body?: string
   certificationList?: IContent[]
