@@ -19,6 +19,7 @@ export interface IHistory {
   resourceType: string
   size?: number
   sourceShortName: string
+  assetType?: string
 }
 export interface IContent {
   appIcon: string
