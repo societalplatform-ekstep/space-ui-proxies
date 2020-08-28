@@ -203,12 +203,19 @@ detailsApi.post('/detailV3', async (req, res) => {
     'unit_name',
     'residence_city',
     'residence_country',
+    'department_name'
   ]
   try {
     if (!_rootOrg) {
       res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
       return
     }
+    let widValues = []
+    if (Array.isArray(req.body.wid)) {
+      widValues =  [...req.body.wid]
+    } else {
+      widValues = [req.body.wid]
+    } 
     const response = await axios.post(
       url,
       {
@@ -216,7 +223,7 @@ detailsApi.post('/detailV3', async (req, res) => {
           root_org: _rootOrg,
         },
         source_fields: userDetails,
-        values: [req.body.wid],
+        values: widValues,
       },
       {
         ...axiosRequestConfig,
