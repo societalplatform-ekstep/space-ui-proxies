@@ -103,4 +103,5 @@ export const DEFAULT_META = [
   'spaceAssetType',
   'artifactLinkUrl',
   'artifactUploadUrl',
+  'spaceProfileType',
 ]
