@@ -21,10 +21,22 @@ export const shareApi = Router()
 
 shareApi.post('/', async (req, res) => {
   try {
+    const org = req.header('org')
+    const rootOrg = req.header('rootOrg')
+    if (!org || !rootOrg) {
+      res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
+      return
+    }
     const response = await axios.post(
       API_END_POINTS.SHARE,
       req.body,
-      axiosRequestConfig
+      {
+     ...axiosRequestConfig,
+     headers: {
+      org,
+      rootOrg
+     }   
+      }
     )
     res.status(response.status).json(response.data.result)
   } catch (err) {
