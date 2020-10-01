@@ -34,8 +34,8 @@ shareApi.post('/', async (req, res) => {
      ...axiosRequestConfig,
      headers: {
       org,
-      rootOrg
-     }   
+      rootOrg,
+     },
       }
     )
     res.status(response.status).json(response.data.result)
