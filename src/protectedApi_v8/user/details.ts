@@ -203,7 +203,7 @@ detailsApi.post('/detailV3', async (req, res) => {
     'unit_name',
     'residence_city',
     'residence_country',
-    'department_name'
+    'department_name',
   ]
   try {
     if (!_rootOrg) {
@@ -215,7 +215,7 @@ detailsApi.post('/detailV3', async (req, res) => {
       widValues =  [...req.body.wid]
     } else {
       widValues = [req.body.wid]
-    } 
+    }
     const response = await axios.post(
       url,
       {
