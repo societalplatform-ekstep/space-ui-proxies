@@ -19,7 +19,7 @@ publicApiV8.use('/assets',
 publicApiV8.use('/tnc', publicTnc)
 
 // tslint:disable-next-line: no-any
-publicApiV8.get('sharable-content/validate/:sharableToken', async (req: any, res: any) => {
+publicApiV8.get('/sharable-content/validate/:sharableToken', async (req: any, res: any) => {
   if (!req.params.sharableToken || !req.header('org') || req.header('rootOrg')) {
     return res.status(400).send({message: 'org / rootOrg / token is either missing or invalid'})
   }
@@ -38,10 +38,50 @@ publicApiV8.get('sharable-content/validate/:sharableToken', async (req: any, res
         },
       }
     )
-    return res.status(200).send({data: result.data})
+    return res.status(200).send({data: {...result}})
   } catch (axiosError) {
     // tslint:disable-next-line: max-line-length
     return res.status(500).send({data: null, error: (axiosError && axiosError.response && axiosError.response.data) || 'Failed due to unkown reason',
+  })
+  }
+})
+
+// tslint:disable-next-line: no-any
+publicApiV8.post('/content/sharable-url/generate', async (req: any, res: any) => {
+  const org = req.header('org')
+  const rootOrg = req.header('rootOrg')
+  const lang = req.header('lang')
+  const uuid = req.header('wid')
+  if (!org || !rootOrg) {
+    res.status(400).send('ORG_DATA not provided')
+    return
+  }
+  if (!lang) {
+    res.status(400).send('LANG_DATA not provided')
+    return
+  }
+  const url = `${CONSTANTS.SB_EXT_API_BASE}/v1/content/share`
+  try {
+    const result = await axios.post(
+      url,
+      {
+        request: { ...req.body }, // body will accept pageType, contentType and lexId
+      },
+      {
+        ...axiosRequestConfig,
+        headers: {
+          'Content-Type': 'application/json',
+          lang,
+          org,
+          rootOrg,
+          wid: uuid,
+        },
+      }
+    )
+    return res.status(200).send({data: {...result}})
+  } catch (axiosError) {
+    // tslint:disable-next-line: max-line-length
+    return res.status(500).send({ data: null, error: (axiosError && axiosError.response && axiosError.response.data) || 'Failed due to unkown reason',
   })
   }
 })
