@@ -20,11 +20,12 @@ publicApiV8.use('/tnc', publicTnc)
 
 // tslint:disable-next-line: no-any
 publicApiV8.get('/sharable-content/validate/:sharableToken', async (req: any, res: any) => {
-  if (!req.params.sharableToken || !req.header('org') || req.header('rootOrg')) {
-    return res.status(400).send({message: 'org / rootOrg / token is either missing or invalid'})
+  // tslint:disable: no-console
+  if (!req.params.sharableToken || !req.header('org') || !req.header('rootorg')) {
+    return res.status(400).send({message: 'org / rootorg / token is either missing or invalid'})
   }
   const org = req.header('org')
-  const rootOrg = req.header('rootOrg')
+  const rootOrg = req.header('rootorg')
   const tokenToValidate = req.params.sharableToken
   const url = `${CONSTANTS.SB_EXT_API_BASE}/v1/content/share/validate/${tokenToValidate}`
   try {
@@ -49,9 +50,9 @@ publicApiV8.get('/sharable-content/validate/:sharableToken', async (req: any, re
 // tslint:disable-next-line: no-any
 publicApiV8.post('/content/sharable-url/generate', async (req: any, res: any) => {
   const org = req.header('org')
-  const rootOrg = req.header('rootOrg')
+  const rootOrg = req.header('rootorg')
   const lang = req.header('lang')
-  const uuid = req.header('wid')
+  const wid = req.header('wid')
   if (!org || !rootOrg) {
     res.status(400).send('ORG_DATA not provided')
     return
@@ -74,7 +75,7 @@ publicApiV8.post('/content/sharable-url/generate', async (req: any, res: any) =>
           lang,
           org,
           rootOrg,
-          wid: uuid,
+          wid,
         },
       }
     )
