@@ -39,11 +39,11 @@ publicApiV8.get('/sharable-content/validate/:sharableToken', async (req: any, re
         },
       }
     )
-    return res.status(200).send({data: result})
+    res.status(200).send(result.data)
   } catch (axiosError) {
     // tslint:disable-next-line: max-line-length
-    return res.status(500).send({data: null, error: (axiosError && axiosError.response && axiosError.response.data) || 'Failed due to unkown reason',
-  })
+    res.status((axiosError && axiosError.response && axiosError.response.status) || 500)
+    .send((axiosError && axiosError.response && axiosError.response.data) || axiosError)
   }
 })
 
@@ -85,14 +85,12 @@ publicApiV8.post('/content/sharable-url/generate', async (req: any, res: any) =>
         },
       }
     )
-    console.log('result fetched as ', result)
-    console.log('result fetched as string', JSON.stringify(result))
-    return res.status(200).send({data: result})
+    console.log('result fetched as ', result.data)
+    res.status(200).send(result.data)
   } catch (axiosError) {
-    console.log('captured error as ', axiosError)
-    console.log('captured error as string ', JSON.stringify(axiosError))
+    console.log('captured error as ', axiosError.response.data)
     // tslint:disable-next-line: max-line-length
-    return res.status(500).send({ data: null, error: JSON.stringify(axiosError),
-  })
+    res.status((axiosError && axiosError.response && axiosError.response.status) || 500)
+    .send((axiosError && axiosError.response && axiosError.response.data) || axiosError)
   }
 })
