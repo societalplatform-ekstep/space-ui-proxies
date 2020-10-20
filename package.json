@@ -37,6 +37,7 @@
     "http-proxy": "^1.17.0",
     "keycloak-connect": "^3.4.3",
     "morgan": "^1.9.1",
+    "qs": "^6.9.4",
     "request": "^2.88.0",
     "uuid": "^3.3.2"
   },

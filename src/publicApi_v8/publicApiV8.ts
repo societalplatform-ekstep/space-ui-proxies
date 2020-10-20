@@ -4,6 +4,8 @@ import { CONSTANTS } from '../utils/env'
 import { proxyCreatorRoute } from '../utils/proxyCreator'
 import { axiosRequestConfig } from './../configs/request.config'
 import { publicTnc } from './tnc'
+const qs = require('qs')
+// tslint:disable: no-any
 
 export const publicApiV8 = express.Router()
 
@@ -18,7 +20,41 @@ publicApiV8.use('/assets',
 
 publicApiV8.use('/tnc', publicTnc)
 
-// tslint:disable-next-line: no-any
+publicApiV8.post('/default-user/login', async (req: any, res: any) => {
+  if (!req.body) {
+    res.statys(400).send('BODY is mandatory')
+  }
+  const {username, password, client_id, grant_type} = req.body
+  if (!username || !password || !client_id || !grant_type) {
+    res.status(400).send('BODY parameters are either missing or malformed')
+  }
+  const url = `https://space.societalplatform.org/auth/realms/wingspan/protocol/openid-connect/token`
+  try {
+    const result = await axios({
+      data: qs.stringify({
+        client_id,
+        grant_type,
+        password,
+        username,
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'post',
+      url,
+    }
+    )
+    // tslint:disable-next-line: no-console
+    console.log('recieved result as ', result.data)
+    res.status(200).send(result.data)
+  } catch (axiosError) {
+    // tslint:disable-next-line: no-console
+    console.log('catched error ', axiosError)
+    res.status((axiosError && axiosError.response && axiosError.response.status) || 500)
+    .send((axiosError && axiosError.response && axiosError.response.data) || axiosError)
+  }
+})
+
 publicApiV8.get('/sharable-content/validate/:sharableToken', async (req: any, res: any) => {
   // tslint:disable: no-console
   if (!req.params.sharableToken || !req.header('org') || !req.header('rootorg')) {
