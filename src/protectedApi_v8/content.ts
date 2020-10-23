@@ -71,6 +71,7 @@ const API_END_POINTS = {
   externalContentAccess: (contentId: string, userId: string) =>
     `${CONSTANTS.SB_EXT_API_BASE_2}/v1/sources/${contentId}/users/${userId}`,
   fetchApi: (rootOrg?: string) => `${CONSTANTS.CONTENT_META_FETCH_API_BASE}/fetch/${rootOrg}`,
+  getContentCount: (lang: string, status: string) => `${CONSTANTS.SB_EXT_API_BASE}/v1/content/${lang}/${status}/count`,
   // hierarchy: (contentId: string) => `${CONSTANTS.CONTENT_HIERARCHY}/${contentId}?dt=UI_LITE`,
   hierarchy: (contentId: string) => `${CONSTANTS.SB_EXT_API_BASE_2}/v1/content/hierarchy/${contentId}`,
   likeCount: `${CONSTANTS.SB_EXT_API_BASE_2}/v1/likes-count`,
@@ -861,5 +862,45 @@ contentApi.post('/:contentId/parent', async (req, res) => {
       .send((err && err.response && err.response.data) || {
         error: GENERAL_ERROR_MSG,
       })
+  }
+})
+
+contentApi.post('/count', async (req, res) => {
+  try {
+    const org = req.header('org')
+    const rootOrg = req.header('rootOrg')
+    const uuid = extractUserIdFromRequest(req)
+    if (!org || !rootOrg) {
+      res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
+      return
+    }
+    const langCode = req.body.langCode || null
+    const contentStatus = req.body.contentStatus || null
+    if (!langCode) {
+      res.status(400).send('LANG_CODE is missing')
+      return
+    }
+    if (!contentStatus) {
+      res.status(400).send('CONTENT_STATUS is missing')
+      return
+    }
+    const response = await axios.get(API_END_POINTS.getContentCount(langCode, contentStatus),
+    {
+      ...axiosRequestConfig,
+      headers: {
+        org,
+        rootOrg,
+        userId: uuid,
+      },
+    }
+    )
+    res.send(response.data)
+  } catch (err) {
+    logError('CONTENT COUNT ERROR -> ', err)
+    res
+    .status((err && err.response && err.response.status) || 500)
+    .send((err && err.response && err.response.data) || {
+      error: GENERAL_ERROR_MSG,
+    })
   }
 })
