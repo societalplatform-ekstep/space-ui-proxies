@@ -884,6 +884,14 @@ contentApi.post('/count', async (req, res) => {
       res.status(400).send('CONTENT_STATUS is missing')
       return
     }
+    // tslint:disable: no-console
+    console.log('lang and content are', langCode + contentStatus)
+    console.log('params supplied are ', req.params)
+    let requestParams = {}
+    if (req.params && Object.keys(req.params).length) {
+      requestParams = {...req.params}
+      console.log('REQUEST PARAMS are ', requestParams)
+    }
     const response = await axios.get(API_END_POINTS.getContentCount(langCode, contentStatus),
     {
       ...axiosRequestConfig,
@@ -892,10 +900,12 @@ contentApi.post('/count', async (req, res) => {
         rootOrg,
         userId: uuid,
       },
+      params: requestParams,
     }
     )
     res.send(response.data)
   } catch (err) {
+    console.log('CATCHED SOME ERROR --> ', err)
     logError('CONTENT COUNT ERROR -> ', err)
     res
     .status((err && err.response && err.response.status) || 500)
