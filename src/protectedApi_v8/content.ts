@@ -91,6 +91,53 @@ const API_END_POINTS = {
 
 export const contentApi = Router()
 
+contentApi.get('/count', async (req, res) => {
+  // tslint:disable: no-console
+  try {
+    const org = req.headers.org || null
+    const rootOrg = req.headers.rootorg || null
+    console.log(req.headers)
+    if (!org || !rootOrg) {
+      res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
+      return
+    }
+    // tslint:disable: no-console
+    const langCode = req.query.langCode || null
+    const contentStatus = req.query.contentStatus || null
+    if (!langCode) {
+      res.status(400).send('LANG_CODE is missing')
+      return
+    }
+    if (!contentStatus) {
+      res.status(400).send('CONTENT_STATUS is missing')
+      return
+    }
+    // tslint:disable: no-console
+    console.log('lang and content are', langCode + ' ' + contentStatus)
+    let requestParams = {}
+    if (req.query && Object.keys(req.query).length) {
+      requestParams = {...req.query}
+      console.log('REQUEST PARAMS are ', requestParams)
+    }
+    console.log('INTERNAL ROUTE WILL BE --> ', API_END_POINTS.getContentCount(langCode, contentStatus))
+    const response = await axios.get(API_END_POINTS.getContentCount(langCode, contentStatus),
+    {
+      ...axiosRequestConfig,
+      headers: {
+        org,
+        rootOrg,
+      },
+      params: requestParams,
+    }
+    )
+    res.send(response.data)
+  } catch (err) {
+    console.log('CATCHED SOME ERROR --> ', err)
+    // tslint:disable-next-line: max-line-length
+    res.status((err && err.response && err.response.status) || 500).send((err && err.response && err.response.data) || {error: GENERAL_ERROR_MSG})
+  }
+})
+
 contentApi.post('/kb/v3/reorder', async (req, res) => {
   try {
     const org = req.header('org')
@@ -862,55 +909,5 @@ contentApi.post('/:contentId/parent', async (req, res) => {
       .send((err && err.response && err.response.data) || {
         error: GENERAL_ERROR_MSG,
       })
-  }
-})
-
-contentApi.post('/count', async (req, res) => {
-  try {
-    const org = req.header('org')
-    const rootOrg = req.header('rootOrg')
-    const uuid = extractUserIdFromRequest(req)
-    if (!org || !rootOrg) {
-      res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
-      return
-    }
-    const langCode = req.body.langCode || null
-    const contentStatus = req.body.contentStatus || null
-    if (!langCode) {
-      res.status(400).send('LANG_CODE is missing')
-      return
-    }
-    if (!contentStatus) {
-      res.status(400).send('CONTENT_STATUS is missing')
-      return
-    }
-    // tslint:disable: no-console
-    console.log('lang and content are', langCode + contentStatus)
-    console.log('params supplied are ', req.params)
-    let requestParams = {}
-    if (req.params && Object.keys(req.params).length) {
-      requestParams = {...req.params}
-      console.log('REQUEST PARAMS are ', requestParams)
-    }
-    const response = await axios.get(API_END_POINTS.getContentCount(langCode, contentStatus),
-    {
-      ...axiosRequestConfig,
-      headers: {
-        org,
-        rootOrg,
-        userId: uuid,
-      },
-      params: requestParams,
-    }
-    )
-    res.send(response.data)
-  } catch (err) {
-    console.log('CATCHED SOME ERROR --> ', err)
-    logError('CONTENT COUNT ERROR -> ', err)
-    res
-    .status((err && err.response && err.response.status) || 500)
-    .send((err && err.response && err.response.data) || {
-      error: GENERAL_ERROR_MSG,
-    })
   }
 })
