@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Buffer } from 'buffer'
-import { Router } from 'express'
+import { Request, Response, Router } from 'express'
 import { UploadedFile } from 'express-fileupload'
 import FormData from 'form-data'
 import { axiosRequestConfig } from '../configs/request.config'
@@ -17,6 +17,7 @@ const API_END_POINTS = {
   adminReactivatePost: `${CONSTANTS.NODE_API_BASE}/admin/reactivatepost`,
   authoringCatalog: `${CONSTANTS.NODE_API_BASE}/catalog/fetch`,
   autocomplete: `${CONSTANTS.NODE_API_BASE}/post/autocomplete`,
+  blogOrQnaCollector: (blogOrQnA: string, status = 'Active') => `${CONSTANTS.SB_EXT_API_BASE}/v1/post/${blogOrQnA}/${status}`,
   createForum: `${CONSTANTS.NODE_API_BASE}/forum/createforum`,
   deletePost: `${CONSTANTS.NODE_API_BASE}/authtool/deletepost`,
   draftPost: `${CONSTANTS.NODE_API_BASE}/authtool/draftpost`,
@@ -41,6 +42,12 @@ const GENERAL_ERROR_MSG = 'Failed due to unknown reason'
 export const socialApi = Router()
 
 const INVALID_ORG_MSG = ERROR.ERROR_NO_ORG_DATA
+
+socialApi.all('*', (req, _res, next) => {
+  // tslint:disable-next-line: no-console
+  console.log('request captured as ', req)
+  next()
+})
 
 socialApi.post('/post/upload/:contentId', async (req, res) => {
   try {
@@ -733,5 +740,44 @@ socialApi.post('/catalog', async (req, res) => {
         error: GENERAL_ERROR_MSG,
       }
     )
+  }
+})
+
+// tslint:disable-next-line: no-shadowed-variable
+socialApi.get('/post/list/:blogOrQna', async (req: Request, res: Response) => {
+  // tslint:disable-next-line: no-console
+  console.log('recieved requst ')
+  // get all the ids of content specified from platform
+  try {
+    const url = `${API_END_POINTS.blogOrQnaCollector(req.params.blogOrQna, 'Active')}`
+    // tslint:disable: no-console
+    console.log('url generated as ', url)
+    const query = req.query || {}
+    const response = await axios.get(url, {
+      headers: {
+        org: req.header('org'),
+        rootOrg: req.header('rootOrg'),
+      },
+      params: query,
+    })
+    console.log('recieved response as ', JSON.stringify(response.data))
+    // tslint:disable: no-any
+    // tslint:disable-next-line: max-line-length
+    if (response.data.hasOwnProperty('result') && response.data.result.hasOwnProperty('response') && Array.isArray(response.data.result.response)) {
+      const IDS = response.data.result.response.map((obj: any) => {
+        return {
+          creatorName: obj.postCreator.name,
+          id: obj.id,
+          title: obj.postContent.title,
+        }
+      })
+      res.status(200).send({ ok: true, status: 200, data: IDS })
+    } else {
+      // when we recieve improper format from the endpoint server
+      res.status(200).send({ ok: true, status: 200, data: [] })
+    }
+  } catch (e) {
+    console.log('An Error occured ---> ', e.message)
+    res.status(500).send({ message: 'An unexpepcted error occured' })
   }
 })
