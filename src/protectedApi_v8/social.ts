@@ -753,6 +753,23 @@ socialApi.get('/post/list/:blogOrQna', async (req: Request, res: Response) => {
     // tslint:disable: no-console
     console.log('url generated as ', url)
     const query = req.query || {}
+    if (req.query.hasOwnProperty('startDate')) {
+      const date = new Date(req.query.startDate)
+      if (isNaN(date.getTime())) {
+        delete query.startDate
+      } else {
+        query.startDate = date.toISOString().replace('Z', '').replace('T', ' ')
+      }
+    }
+    if (req.query.hasOwnProperty('endDate')) {
+      const date = new Date(req.query.endDate)
+      if (isNaN(date.getTime())) {
+        delete query.endDate
+      } else {
+        query.endDate = date.toISOString().replace('Z', '').replace('T', ' ')
+      }
+    }
+    console.log('final query looks like ', JSON.stringify(query))
     const response = await axios.get(url, {
       headers: {
         org: req.header('org'),
