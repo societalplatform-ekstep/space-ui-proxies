@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Router } from 'express'
 import request from 'request'
+import { URL, URLSearchParams } from 'url'
 import { axiosRequestConfig } from '../configs/request.config'
 import { ECollectionTypes, IContent, IContentMinimal } from '../models/content.model'
 import { IPaginatedApiResponse } from '../models/paginatedApi.model'
@@ -88,8 +89,29 @@ const API_END_POINTS = {
   setS3Cookie: `${CONSTANTS.CONTENT_API_BASE}/contentv3/cookie`,
   updateHierarchy: `${CONSTANTS.AUTHORING_BACKEND}/action/content/hierarchy/update`,
 }
-
+// tslint:disable: no-console
 export const contentApi = Router()
+
+contentApi.get('/external-resources', async (req, res) => {
+  try {
+    const url = new URL(`${CONSTANTS.SB_EXT_API_BASE}/v1/content/en/external/resources`)
+    url.search = new URLSearchParams({
+      ...req.query,
+    }).toString()
+    const headers = {
+      ...req.headers,
+    }
+    const response = await axios.get(url.toString(), {
+      headers,
+    })
+    console.log('recieved response successfully from remote endpoint')
+    res.status(200).send(response.data)
+  } catch (err) {
+    console.log('CATCHED ERROR WHILE CONNECTING TO EXTERNAL RESOURCE API--> ', err.toString())
+    // tslint:disable-next-line: max-line-length
+    res.status((err && err.response && err.response.status) || 500).send((err && err.response && err.response.data) || { error: GENERAL_ERROR_MSG })
+  }
+})
 
 contentApi.get('/count', async (req, res) => {
   // tslint:disable: no-console
@@ -116,25 +138,25 @@ contentApi.get('/count', async (req, res) => {
     console.log('lang and content are', langCode + ' ' + contentStatus)
     let requestParams = {}
     if (req.query && Object.keys(req.query).length) {
-      requestParams = {...req.query}
+      requestParams = { ...req.query }
       console.log('REQUEST PARAMS are ', requestParams)
     }
     console.log('INTERNAL ROUTE WILL BE --> ', API_END_POINTS.getContentCount(langCode, contentStatus))
     const response = await axios.get(API_END_POINTS.getContentCount(langCode, contentStatus),
-    {
-      ...axiosRequestConfig,
-      headers: {
-        org,
-        rootOrg,
-      },
-      params: requestParams,
-    }
+      {
+        ...axiosRequestConfig,
+        headers: {
+          org,
+          rootOrg,
+        },
+        params: requestParams,
+      }
     )
     res.send(response.data)
   } catch (err) {
     console.log('CATCHED SOME ERROR --> ', err)
     // tslint:disable-next-line: max-line-length
-    res.status((err && err.response && err.response.status) || 500).send((err && err.response && err.response.data) || {error: GENERAL_ERROR_MSG})
+    res.status((err && err.response && err.response.status) || 500).send((err && err.response && err.response.data) || { error: GENERAL_ERROR_MSG })
   }
 })
 
