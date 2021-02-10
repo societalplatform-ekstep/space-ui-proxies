@@ -138,9 +138,14 @@ protectedTnc.get('/', async (req, res) => {
 protectedTnc.post('/accept', async (req, res) => {
   try {
     const userId = extractUserIdFromRequest(req)
-    const body = {
+    // tslint:disable-next-line: no-any
+    const body: any = {
       termsAccepted: req.body.termsAccepted,
       userId,
+    }
+    if (req.body.hasOwnProperty('newUser')) {
+      // tslint:disable-next-line: no-string-literal
+      body['newUser'] = req.body.newUser
     }
     const rootOrg = req.header('rootOrg')
     const org = req.header('org')
