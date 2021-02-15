@@ -138,15 +138,20 @@ protectedTnc.get('/', async (req, res) => {
 protectedTnc.post('/accept', async (req, res) => {
   try {
     const userId = extractUserIdFromRequest(req)
+    // tslint:disable: no-console
+    console.log('TNC user id is ', userId)
     // tslint:disable-next-line: no-any
     const body: any = {
       termsAccepted: req.body.termsAccepted,
       userId,
     }
+    console.log('TNC initial body for server is ', JSON.stringify(body))
+    console.log('TNC body from request is ', JSON.stringify(req.body))
     if (req.body.hasOwnProperty('newUser')) {
       // tslint:disable-next-line: no-string-literal
       body['newUser'] = req.body.newUser
     }
+    console.log('TNC initial body for server is ', JSON.stringify(body))
     const rootOrg = req.header('rootOrg')
     const org = req.header('org')
     const langCode = req.header('langCode') || 'en'
@@ -165,6 +170,9 @@ protectedTnc.post('/accept', async (req, res) => {
       method: 'POST',
       url: apiEndpoints.acceptTnC,
     })
+    console.log('TNC request is hit')
+    console.log('TNC response looks like ')
+    console.log(response.data)
     const data = response.data.result || ''
     if (data.toUpperCase() === 'SUCCESS') {
       res.status(204).send()
@@ -173,6 +181,7 @@ protectedTnc.post('/accept', async (req, res) => {
     res.status(500).send(response.data)
   } catch (err) {
     logError('ERROR WHILE ACCEPTING TNC', err)
+    console.log(err.stack)
     res.status((err && err.response && err.response.status) || 500).send(
       (err && err.response && err.response.data) || {
         error: GENERAL_ERROR_MSG,
