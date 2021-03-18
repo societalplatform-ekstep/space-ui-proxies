@@ -7,6 +7,7 @@ import { badgeApi } from './badge'
 import { changeEmailApi } from './changeEmail'
 import { classDiagramApi } from './classDiagram'
 import { codeApi } from './code'
+import { connectionApi } from './connection'
 import { userContentApi } from './content'
 import { contentAssignApi } from './content-assign'
 import { dashboardApi } from './dashboard'
@@ -48,6 +49,7 @@ export const user = Router()
 user.use('/group', userGroupApi)
 user.use('/accessControl', accessControlApi)
 user.use('/content-assign', contentAssignApi)
+user.use('/connection', connectionApi)
 user.use('/account-settings', accountSettingsApi)
 user.use('/mini-profile', userMiniProfile)
 user.use('/change-email', changeEmailApi)

@@ -8,8 +8,8 @@ docker rm web-services.build
 docker rmi -f web-services.build
 unzip dist.zip
 
-docker build -f Dockerfile -t 708570229439.dkr.ecr.us-east-1.amazonaws.com/web-services:development-1.0.1 .
-docker push 708570229439.dkr.ecr.us-east-1.amazonaws.com/web-services:development-1.0.1
+docker build -f Dockerfile -t lexplatform.azurecr.io/web-services:prod-sprint-10.1.1 .
+docker push lexplatform.azurecr.io/web-services:prod-sprint-10.1.1
 
 rm -rf dist
 rm -rf dist.zip
