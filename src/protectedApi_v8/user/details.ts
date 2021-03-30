@@ -195,7 +195,7 @@ detailsApi.get('/detailV2', async (req, res) => {
 detailsApi.post('/detailV3', async (req, res) => {
   const _rootOrg = req.header('rootOrg')
   const url = `${API_END_POINTS.detail}`
-  const userDetails: string[] = [
+  let userDetails: string[] = [
     'wid',
     'email',
     'first_name',
@@ -205,6 +205,9 @@ detailsApi.post('/detailV3', async (req, res) => {
     'residence_country',
     'department_name',
   ]
+  if (req.body.userDetails) {
+    userDetails = req.body.userDetails
+  }
   try {
     if (!_rootOrg) {
       res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
