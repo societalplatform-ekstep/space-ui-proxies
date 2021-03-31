@@ -76,6 +76,7 @@ const API_END_POINTS = {
   // hierarchy: (contentId: string) => `${CONSTANTS.CONTENT_HIERARCHY}/${contentId}?dt=UI_LITE`,
   hierarchy: (contentId: string) => `${CONSTANTS.SB_EXT_API_BASE_2}/v1/content/hierarchy/${contentId}`,
   likeCount: `${CONSTANTS.SB_EXT_API_BASE_2}/v1/likes-count`,
+  migrateCreatorContent: `${CONSTANTS.AUTHORING_BACKEND}/v1/admin/content/update/creator`,
   modifyKB: (apiType: string) => `${CONSTANTS.AUTHORING_BACKEND}/action/content/v2/kb/${apiType}`,
   multiple: `${CONSTANTS.SB_EXT_API_BASE_2}/v1/content/metas`,
   next: `${CONSTANTS.NODE_API_BASE_3}/api/v1/moreLikeThis`,
@@ -91,6 +92,55 @@ const API_END_POINTS = {
 }
 // tslint:disable: no-console
 export const contentApi = Router()
+
+contentApi.post('/migrate/creator', async (req, res) => {
+  try {
+  console.log('content migrate api hit')
+  const org = req.headers.org || null
+  const rootOrg = req.headers.rootorg || null
+  console.log(req.headers)
+  console.log(req.body)
+  if (!org || !rootOrg) {
+    res.status(400).send(ERROR.ERROR_NO_ORG_DATA)
+    return
+  }
+  const currentUUID = extractUserIdFromRequest(req)
+  const sourceUser = req.body.from
+  const targetUser = req.body.to
+  const url = API_END_POINTS.migrateCreatorContent
+  console.log(`making PUT request to ${url} with data ${JSON.stringify({
+    creator_id: sourceUser,
+    target_creator_id: targetUser,
+    user_id: currentUUID,
+  })} and headers ${JSON.stringify(
+    {
+      org, rootOrg,
+    })
+  }`)
+  const response = await axios({
+    ...axiosRequestConfig,
+    data: {
+      creator_id: sourceUser,
+      target_creator_id: targetUser,
+      user_id: currentUUID,
+    },
+    headers: {
+      org, rootOrg,
+    },
+    method: 'PUT',
+    url,
+  })
+  console.log('recieved response successfully')
+  res.send(response.data)
+  } catch (err) {
+    console.log('catched an error while processing migration api ', err)
+    res
+      .status((err && err.response && err.response.status) || 500)
+      .send((err && err.response && err.response.data) || {
+        error: GENERAL_ERROR_MSG,
+      })
+  }
+})
 
 contentApi.get('/external-resources', async (req, res) => {
   try {
